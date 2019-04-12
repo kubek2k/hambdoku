@@ -1,0 +1,18 @@
+executable: 
+  main: Main.hs
+  source-dirs: src
+  dependencies:
+  - base
+  - containers
+  - amazonka
+  - amazonka-core
+  - amazonka-lambda
+  - lens
+  - text
+  - exceptions
+  - resourcet
+  - mtl
+  - unordered-containers
+verbatim:
+  cabal-version: 2.2
+license: MIT

@@ -1,0 +1,34 @@
+cabal-version: 2.2
+
+-- This file has been generated from package.yaml by hpack version 0.31.1.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 8ec8e0383d55699a101f96e2e774869b6370f198d418e26adf752e36a8718d04
+
+name:           hambdoku
+version:        0.0.0
+license:        MIT
+license-file:   LICENSE
+build-type:     Simple
+
+executable hambdoku
+  main-is: Main.hs
+  other-modules:
+      CommandLine
+      Paths_hambdoku
+  hs-source-dirs:
+      src
+  build-depends:
+      amazonka
+    , amazonka-core
+    , amazonka-lambda
+    , base
+    , containers
+    , exceptions
+    , lens
+    , mtl
+    , resourcet
+    , text
+    , unordered-containers
+  default-language: Haskell2010
