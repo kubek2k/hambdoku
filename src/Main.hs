@@ -141,8 +141,3 @@ main = do
   where
     packedArgs :: IO [Text]
     packedArgs = fmap pack <$> getArgs
-
-data User =
-  User String
-       String
-  deriving (Show)
