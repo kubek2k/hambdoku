@@ -18,22 +18,21 @@ data VersionData = VersionData
   , description :: Text
   } deriving (Show)
 
-makeRevisionData :: FunctionConfiguration -> Maybe VersionData
-makeRevisionData fc = liftA2 VersionData (fc ^. fcVersion) (fc ^. fcDescription)
-
-getFunctionNames :: [FunctionConfiguration] -> [Text]
-getFunctionNames = mapMaybe $ \f -> f ^. fcFunctionName
-
 listLambdas :: IO [Text]
 listLambdas =
   runWithinAWS $ do
     response <- send listFunctions
     return $ getFunctionNames $ response ^. lfrsFunctions
+  where
+    getFunctionNames = mapMaybe $ \f -> f ^. fcFunctionName
 
 getProperVersions :: ListVersionsByFunctionResponse -> [VersionData]
 getProperVersions response =
   Prelude.filter (\(VersionData v _) -> v /= "$LATEST") $
   Prelude.reverse $ mapMaybe makeRevisionData (response ^. lvbfrsVersions)
+  where
+    makeRevisionData fc =
+      liftA2 VersionData (fc ^. fcVersion) (fc ^. fcDescription)
 
 listLambdaVersions :: Text -> IO [VersionData]
 listLambdaVersions fn = runWithinAWS $ invokeRequest fn [] Nothing
