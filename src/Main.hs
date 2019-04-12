@@ -133,6 +133,7 @@ dispatch ("config:get":fn:varName:_) =
   getConfigVariable fn varName >>= mapM_ TextIO.putStrLn
 dispatch ("config:set":fn:varName:varValue:_) =
   setConfigVariable fn varName varValue
+dispatch ("config:unset":fn:varName:_) = unsetConfigVariable fn varName
 
 main :: IO ()
 main = do
