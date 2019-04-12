@@ -17,6 +17,7 @@ import Data.Maybe as Maybe
 import Data.Text
 import Data.Text.IO as TextIO
 import Network.AWS.Lambda as Lambda
+import System.Environment
 import System.Exit
 import System.IO
 
@@ -110,21 +111,36 @@ runWithinAWS f = do
   env <- newEnv Discover
   runResourceT . runAWST env . within Ireland $ f
 
-printEnvVar :: (Text, Text) -> IO ()
-printEnvVar (k, v) = TextIO.putStrLn $ k <> "=" <> v
+printEnvVars :: HashMap Text Text -> IO ()
+printEnvVars m = mapM_ printEnvVar entries
+  where
+    entries = toList m
+    printEnvVar (k, v) = TextIO.putStrLn $ k <> "=" <> v
 
 handleServiceError e = do
   forM_ (e ^. serviceMessage) $ \(ErrorMessage m) ->
     TextIO.putStrLn $ "ERROR: " <> m
   exitFailure
 
+dispatch :: [Text] -> IO ()
+dispatch ("list":_) = do
+  lambdas <- listLambdas
+  mapM_ TextIO.putStrLn lambdas
+dispatch ("config":fn:_) = do
+  (RevisionAndVariables _ configM) <- getConfig fn
+  mapM_ printEnvVars configM
+dispatch ("config:get":fn:varName:_) =
+  getConfigVariable fn varName >>= mapM_ TextIO.putStrLn
+dispatch ("config:set":fn:varName:varValue:_) =
+  setConfigVariable fn varName varValue
+
 main :: IO ()
-main =
-  catching
-    _ServiceError
-    (do revisions <- listLambdaVersions "some-func"
-        forM_ revisions print)
-    handleServiceError
+main = do
+  args <- packedArgs
+  catching _ServiceError (dispatch args) handleServiceError
+  where
+    packedArgs :: IO [Text]
+    packedArgs = fmap pack <$> getArgs
 
 data User =
   User String
