@@ -11,6 +11,7 @@ import Data.Text
 import Data.Text.IO as TextIO
 import Lambda
 import Lambda.Config as Config
+import Lambda.Pipelines as Pipelines
 import System.Environment
 import System.Exit
 import System.IO
