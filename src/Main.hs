@@ -41,9 +41,7 @@ dispatch ("config:set":fn:varName:varValue:_) =
 dispatch ("config:unset":fn:varName:_) = unsetConfigVariable fn varName
 dispatch ("releases":fn:_) = do
   versions <- listLambdaVersions fn
-  mapM_
-    (\v -> TextIO.putStrLn (version v <> " " <> description v))
-    (Prelude.reverse versions)
+  mapM_ (\v -> TextIO.putStrLn (version v <> " " <> description v)) versions
 
 main :: IO ()
 main = do
