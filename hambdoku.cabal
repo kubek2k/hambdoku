@@ -4,7 +4,7 @@ cabal-version: 2.2
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 8ec8e0383d55699a101f96e2e774869b6370f198d418e26adf752e36a8718d04
+-- hash: a972bcb71e8933d82439f01ee56d3188c7ce4f51706dd7dbd8a231ae1c62d4c7
 
 name:           hambdoku
 version:        0.0.0
@@ -15,7 +15,10 @@ build-type:     Simple
 executable hambdoku
   main-is: Main.hs
   other-modules:
-      CommandLine
+      Http
+      Lambda
+      Lambda.Config
+      Lambda.Pipelines
       Paths_hambdoku
   hs-source-dirs:
       src
@@ -24,11 +27,15 @@ executable hambdoku
     , amazonka-core
     , amazonka-lambda
     , base
+    , bytestring
     , containers
+    , data-default-class
     , exceptions
     , lens
     , mtl
+    , req
     , resourcet
+    , temporary
     , text
     , unordered-containers
   default-language: Haskell2010

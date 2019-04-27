@@ -8,7 +8,9 @@ import Control.Monad
 import Control.Monad.Trans.AWS
 import Data.HashMap.Strict as HashMap
 import Data.Text
+import Data.Text.Encoding
 import Data.Text.IO as TextIO
+import Http
 import Lambda
 import Lambda.Config as Config
 import Lambda.Pipelines as Pipelines
@@ -42,6 +44,11 @@ dispatch ("config:unset":fn:varName:_) = unsetConfigVariable fn varName
 dispatch ("releases":fn:_) = do
   versions <- listLambdaVersions fn
   mapM_ (\v -> TextIO.putStrLn (version v <> " " <> description v)) versions
+dispatch ("download":fn:_) = do
+  codeLocation <- getLambdaCodeLocation fn
+  let encodedLocation = encodeUtf8 <$> codeLocation
+  temporaryFile <- forM encodedLocation saveCodeToTemporaryLocation
+  forM_ (join temporaryFile) print
 
 main :: IO ()
 main = do

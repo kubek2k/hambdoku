@@ -13,6 +13,10 @@ executable:
   - resourcet
   - mtl
   - unordered-containers
+  - req
+  - data-default-class
+  - bytestring
+  - temporary
 verbatim:
   cabal-version: 2.2
 license: MIT

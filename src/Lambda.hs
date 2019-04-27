@@ -43,6 +43,12 @@ listLambdaVersions fn = runWithinAWS $ invokeRequest fn [] Nothing
       let revisions = getProperVersions response <> acc
       maybe (return revisions) (invokeRequest fn acc . Just) newNextMarker
 
+getLambdaCodeLocation :: Text -> IO (Maybe Text)
+getLambdaCodeLocation fn =
+  runWithinAWS $ do
+    response <- send $ getFunction fn
+    return $ response ^. gfrsCode & fmap (view fclLocation) & join
+
 publishLambdaVersion :: Text -> Maybe Text -> Text -> IO ()
 publishLambdaVersion fn revision desc =
   runWithinAWS $
