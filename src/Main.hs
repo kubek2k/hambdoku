@@ -44,11 +44,7 @@ dispatch ("config:unset":fn:varName:_) = unsetConfigVariable fn varName
 dispatch ("releases":fn:_) = do
   versions <- listLambdaVersions fn
   mapM_ (\v -> TextIO.putStrLn (version v <> " " <> description v)) versions
-dispatch ("download":fn:_) = do
-  codeLocation <- getLambdaCodeLocation fn
-  let encodedLocation = encodeUtf8 <$> codeLocation
-  temporaryFile <- forM encodedLocation saveCodeToTemporaryLocation
-  forM_ (join temporaryFile) print
+dispatch ("download":fn:_) = downloadLambda fn >>= mapM_ print
 
 main :: IO ()
 main = do

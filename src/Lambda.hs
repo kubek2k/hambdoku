@@ -11,6 +11,8 @@ import Control.Monad.Trans.AWS
 import Control.Monad.Trans.Resource
 import Data.Maybe
 import Data.Text
+import Data.Text.Encoding
+import Http
 import Network.AWS.Lambda as Lambda
 
 data VersionData = VersionData
@@ -61,3 +63,9 @@ runWithinAWS ::
 runWithinAWS f = do
   env <- newEnv Discover
   runResourceT . runAWST env . within Ireland $ f
+
+downloadLambda :: Text -> IO (Maybe FilePath)
+downloadLambda fn = do
+  codeLocation <- getLambdaCodeLocation fn
+  let encodedLocation = encodeUtf8 <$> codeLocation
+  fmap join $ forM encodedLocation saveCodeToTemporaryLocation
