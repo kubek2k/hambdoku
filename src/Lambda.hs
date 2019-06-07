@@ -9,11 +9,13 @@ import Control.Monad.Catch as Catch
 import Control.Monad.IO.Class
 import Control.Monad.Trans.AWS
 import Control.Monad.Trans.Resource
+import Data.ByteString as BS
 import Data.Maybe
 import Data.Text
 import Data.Text.Encoding
 import Http
 import Network.AWS.Lambda as Lambda
+import System.IO
 
 data VersionData = VersionData
   { version :: Text
@@ -58,14 +60,24 @@ publishLambdaVersion fn revision desc =
   send $
   Lambda.publishVersion fn & pvDescription ?~ desc & pvRevisionId .~ revision
 
-runWithinAWS ::
-     (MonadCatch m, MonadUnliftIO m) => AWST' Env (ResourceT m) b -> m b
-runWithinAWS f = do
-  env <- newEnv Discover
-  runResourceT . runAWST env . within Ireland $ f
-
 downloadLambda :: Text -> IO (Maybe FilePath)
 downloadLambda fn = do
   codeLocation <- getLambdaCodeLocation fn
   let encodedLocation = encodeUtf8 <$> codeLocation
-  fmap join $ forM encodedLocation saveCodeToTemporaryLocation
+  join <$> forM encodedLocation saveCodeToTemporaryLocation
+
+uploadLambda :: FilePath -> Text -> IO ()
+uploadLambda codeFilePath fn =
+  runWithinAWS $ do
+    functionCode <- liftIO $ BS.readFile codeFilePath
+    let request =
+          updateFunctionCode fn & uZipFile ?~ functionCode & uPublish ?~ True
+    liftIO $ print request
+    void $ send request
+
+runWithinAWS ::
+     (MonadCatch m, MonadUnliftIO m) => AWST' Env (ResourceT m) b -> m b
+runWithinAWS f = do
+  logger <- newLogger Info stdout
+  env <- newEnv Discover <&> set envLogger logger
+  runResourceT . runAWST env . within Ireland $ f

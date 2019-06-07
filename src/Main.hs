@@ -45,6 +45,10 @@ dispatch ("releases":fn:_) = do
   versions <- listLambdaVersions fn
   mapM_ (\v -> TextIO.putStrLn (version v <> " " <> description v)) versions
 dispatch ("download":fn:_) = downloadLambda fn >>= mapM_ print
+dispatch ("pipelines:add":fn:downstream:_) = addDownstreamLambda fn downstream
+dispatch ("pipelines:remove":fn:downstream:_) =
+  removeDownstreamLambda fn downstream
+dispatch ("pipelines:promote":fn:_) = promoteLambda fn
 
 main :: IO ()
 main = do
