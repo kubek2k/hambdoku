@@ -49,6 +49,7 @@ dispatch ("pipelines:add":fn:downstream:_) = addDownstreamLambda fn downstream
 dispatch ("pipelines:remove":fn:downstream:_) =
   removeDownstreamLambda fn downstream
 dispatch ("pipelines:promote":fn:_) = promoteLambda fn
+dispatch v = System.IO.putStrLn $ "No support for " <> show v
 
 main :: IO ()
 main = do
